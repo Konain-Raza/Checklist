@@ -1,0 +1,22 @@
+modules:
+  jira:issuePanel:
+    - key: checklist-hello-world-issue-panel
+      resource: main
+      resolver:
+        function: resolver
+      render: native
+      title: Checklist
+      icon: https://developer.atlassian.com/platform/forge/images/icons/issue-panel-icon.svg
+  function:
+    - key: resolver
+      handler: index.handler
+resources:
+  - key: main
+    path: src/frontend/index.jsx
+permissions:
+  scopes:
+    - storage:app
+app:
+  runtime:
+    name: nodejs20.x
+  id: ari:cloud:ecosystem::app/ed7ac7d5-8065-45c1-a11f-a55070d219de
