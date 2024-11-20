@@ -6,15 +6,22 @@ import ForgeReconciler, {
   Checkbox,
   LoadingButton,
   Strike,
+  Popup,
   SectionMessage,
   Text,
   Select,
+  List,
+  ListItem,
+  Fragment,
   Box,
+  xcss,
+  Tooltip,
   Heading,
 } from "@forge/react";
 import { view, invoke } from "@forge/bridge";
 
-const App = () => {
+const Checklist = () => {
+  const [isOpen, setIsOpen] = useState(false);
   const [issueKey, setIssueKey] = useState("");
   const [inputStatus, setInputStatus] = useState("To Do");
   const [textInput, setTextInput] = useState("");
@@ -22,6 +29,10 @@ const App = () => {
   const [isAddingTask, setIsAddingTask] = useState(false);
   const [message, setMessage] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  const contentStyles = xcss({
+    padding: "space.200",
+  });
 
   useEffect(() => {
     const initialize = async () => {
@@ -45,37 +56,75 @@ const App = () => {
     initialize();
   }, []);
 
-  const getTaskBackgroundColor = (status) => {
-    switch (status) {
-      case "In Progress":
-        return "color.background.discovery"; // Assuming this is for "In Progress"
-      case "Done":
-        return "color.background.success"; // Example: Success color for Done
-      case "Skipped":
-        return "color.background.neutral"; // Example: Neutral color for Skipped
-      default:
-        return "color.background.default"; // Default color for To Do
-    }
-  };
-
-  const handleAddTask = async () => {
-    if (textInput) {
+  const handleAddTask = async (template) => {
+    if (template && template.stages) {
       setIsAddingTask(true);
-      const newTask = { text: textInput, status: inputStatus, checked: false };
-      const updatedTasks = [newTask, ...tasks];
+
+      const newTasks = template.stages.map((stage) => ({
+        text: `${template.name} - ${stage}`, // Corrected template literal
+        status: inputStatus,
+        checked: false,
+      }));
+
+      const updatedTasks = [...newTasks, ...tasks];
       setTasks(updatedTasks);
       setTextInput("");
 
       try {
         await invoke("setTasks", { issueKey, tasks: updatedTasks });
-        setMessage({ type: "success", text: "Task added successfully" });
+        setMessage({
+          type: "success",
+          text: `${template.name} tasks added successfully`, // Fixed closing string
+        });
       } catch {
-        setMessage({ type: "error", text: "Failed to add task" });
+        setMessage({ type: "error", text: "Failed to add tasks" });
       } finally {
         setIsAddingTask(false);
+        setInputStatus("To Do");
       }
     }
   };
+
+  const templates = [
+    {
+      name: "Dev",
+      stages: [
+        "Planning",
+        "Development",
+        "Testing",
+        "Review",
+        "Deployment",
+        "Maintenance",
+      ],
+    },
+    {
+      name: "UAT",
+      stages: ["Planning", "Testing", "Sign-off"],
+    },
+    {
+      name: "Software Development",
+      stages: [
+        "Requirements",
+        "Design",
+        "Implementation",
+        "Testing",
+        "Deployment",
+        "Maintenance",
+      ],
+    },
+    {
+      name: "QA",
+      stages: ["Test Planning", "Test Execution", "Bug Fixing", "Reporting"],
+    },
+    {
+      name: "Prod",
+      stages: ["Preparation", "Deployment", "Monitoring", "Post-Deployment"],
+    },
+    {
+      name: "Staging",
+      stages: ["Setup", "Pre-Testing", "Testing", "Verification"],
+    },
+  ];
 
   const handleStatusChange = async (index, status) => {
     const updatedTasks = tasks.map((task, i) =>
@@ -89,8 +138,6 @@ const App = () => {
     } catch {
       setMessage({ type: "error", text: "Failed to update task status" });
     }
-
-    console.log(updatedTasks);
   };
 
   return (
@@ -107,6 +154,51 @@ const App = () => {
         </SectionMessage>
       ) : (
         <>
+          <Popup
+            isOpen={isOpen}
+            onClose={() => setIsOpen(false)}
+            placement="top-start"
+            content={() => (
+              <Box xcss={contentStyles}>
+                <Heading as="h5">Task List</Heading>
+                <List type="ordered">
+                  {templates.map((template) => (
+                    <ListItem key={template.name}>
+                      <Inline space="space.400" spread="space-between">
+                        <Text>{template.name}</Text>
+                        <Inline space="space.200">
+                          <Button
+                            appearance="primary"
+                            onClick={() => handleAddTask(template)}
+                          >
+                            Add
+                          </Button>
+                          <Button
+                            appearance="warning"
+                            onClick={() => {
+                              console.log(`Viewing tasks for ${template.name}`);
+                            }}
+                          >
+                            View
+                          </Button>
+                        </Inline>
+                      </Inline>
+                    </ListItem>
+                  ))}
+                </List>
+              </Box>
+            )}
+            trigger={() => (
+              <Button
+                appearance="primary"
+                isSelected={isOpen}
+                onClick={() => setIsOpen(!isOpen)}
+              >
+                {isOpen ? "Close" : "Open"} popup
+              </Button>
+            )}
+          />
+
           <Inline space="space.050" alignBlock="center">
             <Select
               inputId="task-status-select"
@@ -127,12 +219,14 @@ const App = () => {
               placeholder="Enter a task"
             />
             {isAddingTask ? (
-               <LoadingButton appearance="primary" isLoading>
-               Loading button
-             </LoadingButton>
+              <LoadingButton appearance="primary" isLoading>
+                Loading button
+              </LoadingButton>
             ) : (
               <Button
-                onClick={handleAddTask}
+                onClick={() =>
+                  handleAddTask({ stages: [textInput], name: "Custom" })
+                }
                 appearance="primary"
                 isLoading={isAddingTask}
               >
@@ -185,6 +279,6 @@ const App = () => {
 
 ForgeReconciler.render(
   <React.StrictMode>
-    <App />
+    <Checklist />
   </React.StrictMode>
 );

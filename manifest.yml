@@ -7,15 +7,28 @@ modules:
       render: native
       title: Checklist
       icon: https://developer.atlassian.com/platform/forge/images/icons/issue-panel-icon.svg
+  jira:projectPage:
+    - key: checklist-hello-world-project-panel
+      resource: secondary
+      resolver:
+        function: resolver
+      render: native
+      title: Checklist
+      icon: https://developer.atlassian.com/platform/forge/images/icons/issue-panel-icon.svg
   function:
     - key: resolver
+      handler: index.handler
+    - key: project
       handler: index.handler
 resources:
   - key: main
     path: src/frontend/index.jsx
+  - key: secondary
+    path: src/frontend/Dashboard/index.jsx
 permissions:
   scopes:
     - storage:app
+    - read:jira-user
 app:
   runtime:
     name: nodejs20.x
