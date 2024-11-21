@@ -12,9 +12,10 @@
     "eslint-plugin-react-hooks": "^4.6.0"
   },
   "dependencies": {
+    "@atlaskit/textfield": "^6.5.5",
     "@forge/api": "4.0.0",
     "@forge/bridge": "4.1.0",
-    "@forge/react": "10.7.0",
+    "@forge/react": "^10.7.0",
     "@forge/resolver": "1.6.1",
     "@forge/ui": "^1.11.1",
     "buffer": "^6.0.3",

@@ -6,7 +6,7 @@ modules:
         function: resolver
       render: native
       title: Checklist
-      icon: https://developer.atlassian.com/platform/forge/images/icons/issue-panel-icon.svg
+      icon: https://www.svgrepo.com/show/520483/quiz.svg
   jira:projectPage:
     - key: checklist-hello-world-project-panel
       resource: secondary
@@ -14,7 +14,7 @@ modules:
         function: resolver
       render: native
       title: Checklist
-      icon: https://developer.atlassian.com/platform/forge/images/icons/issue-panel-icon.svg
+      icon: https://www.svgrepo.com/show/520483/quiz.svg
   function:
     - key: resolver
       handler: index.handler
